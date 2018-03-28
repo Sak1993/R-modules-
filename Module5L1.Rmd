@@ -1,0 +1,113 @@
+---
+title: "M5L1.Rmd"
+author: "Sai Krishna Reddy Gottam"
+date: "October 8, 2016"
+output: word_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+This homework assignment is based on Expectation-maximization (EM).
+
+#Additional packages needed
+To run the code in Module5L1.Rmd you may need additional packages.
+.	If necessary install following packages.
+install.packages("fitdistrplus"); 
+
+install.packages("mclust");
+
+```{r}
+require(fitdistrplus)
+require(mclust)
+
+d_url <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/ecoli/ecoli.data'
+ecoli_data <-read.table(url(d_url), sep="",stringsAsFactors = FALSE)
+
+colnames(ecoli_data)<-c("SequenceName","mcg","gvh","lip","chg","aac","alm1","alm2","Class")
+
+ecoli<-ecoli_data[2:8]
+head(ecoli)
+```
+
+
+#Lets take a look at how the data is distributed using the Cullen and Frey Graph.
+```{r}
+descdist(ecoli$mcg, discrete = FALSE)
+```
+
+
+```{r}
+descdist(ecoli$gvh, discrete = FALSE)
+```
+
+```{r}
+descdist(ecoli$lip, discrete = FALSE)
+```
+
+```{r}
+descdist(ecoli$chg, discrete = FALSE)
+```
+
+```{r}
+descdist(ecoli$aac, discrete = FALSE)
+```
+
+```{r}
+descdist(ecoli$alm1, discrete = FALSE)
+```
+
+```{r}
+descdist(ecoli$alm2, discrete = FALSE)
+```
+
+From the above graph we can see that lip,chg,mcg,alm1 are mostly uniform distributions and alm2 can be a beta dstribution aac,gvh can be either lognormal or gamma distribution.
+
+
+
+##EM Based Clustering
+#.	How did you choose a model for EM? Evaluate the model performance.
+
+A. As the data seems to be a mixture of distributions we will be using EM model here we will be using the  E step to sum the expectations of statistics and M step to maximise the linear function. As most of the  data doesn't belong to linear function it is good to use EM model here.
+
+```{r}
+fits<-Mclust(ecoli)
+fits
+
+summary(fits)
+```
+
+
+The plot command for EM produces the following four plots:
+.	The BIC values used for choosing the number of clusters
+
+.	A plot of the clustering
+
+.	A plot of the classification uncertainty
+
+.	The orbital plot of clusters
+
+```{r}
+# BIC
+plot(fits,what="BIC")
+
+```
+
+```{r}
+plot(fits, what = "classification")
+```
+
+```{r}
+plot(fits, what = "uncertainty")
+```
+
+```{r}
+plot(fits, what = "density")
+
+
+BIC = mclustBIC(ecoli)
+summary(BIC)
+```
+
+2. Cluster some of your data using EM based clustering that you also used for k-means, PAM, and hierarchical clustering. How do the clustering approaches compare on the same data?
+
+A. EM clustering approach performs very similar to k-means and  pam of heirarchical clustering.

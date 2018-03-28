@@ -1,0 +1,128 @@
+---
+title: "Module7L1"
+author: "Sai Krishna Reddy Gottam"
+date: "October 20, 2016"
+output: word_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+##Additional packages needed
+#This Homework Assignment focuses on k Nearest Neighbour(kNN) Algorithm
+To run the code in Module7L1.Rmd you may need additional packages.
+.	If necessary install the followings packages.
+install.packages("ggplot2");
+install.packages("class");
+
+```{r}
+library(ggplot2)
+library(class)
+```
+
+```{r}
+#Loading the required data
+d_url <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/ecoli/ecoli.data'
+ecoli_data <-read.table(url(d_url), sep="",stringsAsFactors = FALSE)
+
+colnames(ecoli_data)<-c("SequenceName","mcg","gvh","lip","chg","aac","alm1","alm2","Class")
+
+ecoli<-ecoli_data[2:8]
+head(ecoli)
+```
+
+##k-Nearest Neighbors (kNN) in R
+```{r}
+head(ecoli)
+
+summary(ecoli)
+
+length(ecoli)
+
+names(ecoli)
+
+table(ecoli$mcg)
+
+length(ecoli$mcg)
+```
+
+You can also embed plots, for example:
+```{r}
+shuff<-runif(nrow(ecoli))
+shuff
+
+ecolis<-ecoli[order(shuff),]
+ecolis$mcg
+```
+
+
+You can also embed plots, for example:
+```{r}
+qplot(ecolis$mcg,ecolis$aac,data=ecoli)+geom_point(aes(colour = factor(ecoli$gvh),shape = factor(ecoli$gvh)))
+```
+
+
+
+You can also embed plots, for example:
+```{r}
+qplot(ecolis$alm1,ecolis$mcg,data=ecoli)+geom_point(aes(colour = factor(ecoli$gvh),shape = factor(ecoli$gvh)))
+```
+
+
+You can also embed plots, for example:
+```{r}
+ecoli.scaled<-as.data.frame(lapply(ecoli[,c(1:7)], scale))
+head(ecoli.scaled)
+
+summary(ecoli.scaled)
+```
+
+You can also embed plots, for example:
+```{r}
+normalize<- function(x) {
+  return((x-min(x))/(max(x)-min(x)))
+}
+ecoli.normalized<-as.data.frame(lapply(ecoli[,c(1:7)],normalize))
+head(ecoli.normalized)
+
+summary(ecoli.normalized)
+
+nrow(ecoli)
+```
+
+You can also embed plots, for example:
+```{r}
+ecoli.normalized.train<-ecoli.normalized[1:308,]
+ecoli.normalized.test<-ecoli.normalized[309:336,]
+ecoli.normalized.train.target<-ecoli[1:308,c(1)]
+ecoli.normalized.test.target<-ecoli[309:336,c(1)]
+ecoli.normalized.test.target
+
+k<-1
+knn.m2<-knn(train = ecoli.normalized.train, test = ecoli.normalized.test,ecoli.normalized.train.target,k)
+knn.m2
+
+k<-3
+knn.m2<-knn(train = ecoli.normalized.train, test = ecoli.normalized.test,ecoli.normalized.train.target,k)
+knn.m2
+
+
+length(knn.m2)
+
+cm<-table(ecoli.normalized.test.target,knn.m2)
+cm
+
+
+
+```
+
+#	Classify your data using k-Nearest Neighbors. Answer the following questions:
+
+#1.-	Does the k for kNN make a difference? Try for a range of values of k.
+
+A. Yes I think it  does make a difference for different values of k
+
+#2. -	Does scaling, normalization or leaving the data unscaled make a difference for kNN?
+
+A. Yes  it does make  a difference depending  on the data type

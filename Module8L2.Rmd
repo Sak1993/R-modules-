@@ -1,0 +1,174 @@
+---
+title: "Module8L2"
+author: "Sai Krishna Reddy Gottam"
+date: "October 29, 2016"
+output: word_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+##Additional packages needed
+#This Homework Assignment focuses on Linear Discriminant Analysis.
+To run the code in Module8L2.Rmd you may need additional packages.
+
+If necessary install the followings packages.
+install.packages("ggplot2");
+install.packages("MASS");
+install.packages("car");
+
+
+
+```{r}
+require(ggplot2)
+## Loading required package: ggplot2
+require(MASS)
+## Loading required package: MASS
+require(car)
+## Loading required package: car
+```
+
+```{r}
+#Loading the required data
+d_url <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/ecoli/ecoli.data'
+ecoli_data <-read.table(url(d_url), sep="",stringsAsFactors = FALSE)
+
+colnames(ecoli_data)<-c("SequenceName","mcg","gvh","lip","chg","aac","alm1","alm2","Class")
+
+ecoli<-ecoli_data[2:8]
+head(ecoli)
+```
+
+
+
+
+#Linear Discriminant Analysis in R
+
+```{r}
+head(ecoli)
+summary(ecoli)
+length(ecoli)
+
+
+```
+
+
+You can also embed plots, for example:
+
+
+
+```{r}
+names(ecoli)
+
+require(car)
+scatterplotMatrix(ecoli[1:4])
+
+pairs(ecoli[,1:7])
+
+require(ggplot)
+qplot(ecoli$gvh,ecoli$aac,data=ecoli)+geom_point(aes(colour =factor(ecoli$mcg),shape = factor(ecoli$mcg)))
+
+qplot(ecoli$alm1,ecoli$gvh,data=ecoli)+geom_point(aes(colour = factor(ecoli$mcg),shape = factor(ecoli$mcg)))
+```
+
+You can also embed plots, for example:
+
+
+
+```{r}
+require(MASS)
+lsa.m11<-lda(mcg ~ gvh + lip, data=ecoli)
+lsa.m11
+```
+
+You can also embed plots, for example:
+
+
+
+```{r}
+ecolis<-ecoli[which(ecoli$mcg!=1),]
+head(ecolis)
+summary(ecolis)
+
+qplot(ecolis$gvh,ecolis$aac,data=ecoli)+geom_point(aes(colour =factor(ecolis$mcg),shape = factor(ecolis$mcg)))
+```
+
+You can also embed plots, for example:
+
+
+
+```{r}
+lsa.m22<-lda(mcg ~ gvh + aac, data=ecolis)
+lsa.m22
+```
+
+You can also embed plots, for example:
+
+
+
+```{r}
+qplot(ecolis$alm1,ecolis$aac,data=ecolis)+geom_point(aes(colour = factor(ecolis$mcg),shape = factor(ecolis$mcg)))
+```
+
+
+You can also embed plots, for example:
+
+
+
+```{r}
+lsa.m33<-lda(mcg ~ alm1 + aac, data=ecolis)
+lsa.m33
+```
+
+You can also embed plots, for example:
+
+
+
+
+```{r}
+names(ecolis)
+
+lsa.m2.p<-predict(lsa.m22,ecolis[,c(2,5)])
+lsa.m2.p
+lsa.m2.p$class
+```
+
+You can also embed plots, for example:
+
+
+
+
+```{r}
+lsa.m3.p<-predict(lsa.m33, newdata = ecolis[,c(5,6)])
+lsa.m1.p<-predict(lsa.m11, newdata = ecolis[,c(2,3)])
+```
+
+You can also embed plots, for example:
+
+
+
+
+```{r}
+cm.m1<-table(lsa.m1.p$class,ecolis[,c(1)])
+cm.m1
+
+cm.m2<-table(lsa.m2.p$class,ecolis[,c(1)])
+cm.m2
+
+cm.m3<-table(lsa.m3.p$class,ecolis[,c(1)])
+cm.m3
+
+
+```
+
+##	Does the number of predictor variables for LDA make a difference? Try for a range of models using differing numbers of predictor variables.
+A.  The number of predictor variables for LDA does not make a difference.
+
+##	What determines the number of linear discriminants in LDA.
+A.  The number of classes determines the number of linear discriminants in LDA.
+
+##	Does scaling, normalization or leaving the data unscaled make a difference for LDA?
+A.  scaling,normalization,leaving the data unscaled does not make a difference for LDA.
+
+

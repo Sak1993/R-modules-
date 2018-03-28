@@ -1,0 +1,200 @@
+---
+title: "Module4L2"
+author: "Sai Krishna Reddy Gottam"
+date: "October 2, 2016"
+output: word_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+
+#This homework assignment focuses on Clustering.
+
+#Additional packages needed 
+To run the code in Module4L2.Rmd you may need additional packages.
+
+#If necessary install following packages.
+install.packages("ggplot2");
+install.packages("useful"); 
+install.packages("cluster"); 
+install.packages("amap"); 
+install.packages("energy");
+
+```{r}
+require(ggplot2)
+## Loading required package: ggplot2
+require(useful)
+## Loading required package: useful
+require(cluster)
+## Loading required package: cluster
+require(amap)
+## Loading required package: amap
+require(energy)
+## Loading required package: energy
+
+d_url <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/ecoli/ecoli.data'
+ecoli_data <-read.table(url(d_url), sep="",stringsAsFactors = FALSE)
+
+colnames(ecoli_data)<-c("SequenceName","mcg","gvh","lip","chg","aac","alm1","alm2","Class")
+
+ecoli<-ecoli_data[2:8]
+head(ecoli)
+```
+
+Clustering
+K-means clustering
+Determining number of clusters
+```{r}
+head(ecoli)
+
+k<-2
+ecoli.2.clust<- kmeans(ecoli,k)
+ecoli.2.clust
+
+#Determining number of clusters
+sos <- (nrow(ecoli)-1)*sum(apply(ecoli,2,var))
+for (i in 2:10) sos[i] <- sum(kmeans(ecoli, centers=i)$withinss)
+plot(1:10, sos, type="b", xlab="Number of Clusters", ylab="sum of squares")
+
+# Hartigans's rule  FitKMean (similarity)
+ require(useful)
+cest<-FitKMeans(ecoli,max.clusters=10, seed=111) 
+PlotHartigan(cest)
+
+
+```
+
+#A k of 3?
+```{r}
+k<-3
+ecoli.3.clust<-kmeans(ecoli,k)
+ecoli.3.clust
+```
+
+#.	How did you choose a k for k-means?
+
+A. I chose k from the hartigan's rule FitKMean (similarity).
+
+##PAM Clustering
+```{r}
+require(cluster)
+k<-3
+ecoli.pam.3.clust<- pam(ecoli,k, keep.diss = TRUE, keep.data = TRUE)
+ecoli.pam.3.clust
+```
+
+##Hierarchical Clustering
+```{r}
+ecoli.h.clust<- hclust(d=dist(ecoli))
+plot(ecoli.h.clust)
+```
+
+#.	Evaluate the model performance. How do the clustering approaches compare on the same data?
+
+```{r}
+# Evaluating model performance (for k-means)
+# looking at the size of the clusters
+ecoli.3.clust$size
+
+#looking at the cluster centers
+ecoli.3.clust$centers
+```
+
+The results of k-means and PAM clustering are mostly similar. We can evaluate the two approaches further using confusion matrix and silhoutte plot.
+
+#.	Generate and plot confusion matrices for the k-means and PAM. What do they tell you?
+
+```{r}
+cm <-table(ecoli_data$Class,ecoli.3.clust$cluster)
+cm
+
+plot(cm)
+
+cm2<-table(ecoli_data$Class,ecoli.pam.3.clust$cluster)
+cm2
+
+plot(cm2)
+```
+
+From the confusion matrix, we  can understand that both the approaches has segregated 'cp' class completely but have made errors with all the other classes.
+
+#.	Generate centroid plots against the 1st two discriminant functions for k-means and PAM. What do they tell you?
+
+```{r}
+# Centroid plot for k-means
+clusplot(ecoli, ecoli.3.clust$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+
+# Centroid plot for PAM
+clusplot(ecoli, ecoli.pam.3.clust$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+```
+
+The centroid plots of both the clustering techniques show that three components slightly overlap over each other.
+
+#.	Generate silhouette plots for PAM. What do they tell you?
+```{r}
+plot(ecoli.pam.3.clust, which.plots = 2)
+
+```
+
+No lines in the silhouette plot that means there is no cluster similarity between or within the clusters 
+
+
+#.	For the hierarchical clustering use all linkage methods (Single Link, Complete Link, Average Link, Centroid and Minimum energy clustering) and generate dendograms. How do they compare on the same data?
+
+A.
+```{r}
+ecoli.h.clust.si<- hclust(dist(ecoli), method = "single")
+plot(ecoli.h.clust.si, labels = FALSE)
+```
+```{r}
+ecoli.h.clust.co<- hclust(dist(ecoli), method = "complete")
+plot(ecoli.h.clust.co, labels = FALSE)
+```
+```{r}
+ecoli.h.clust.av<- hclust(dist(ecoli), method = "average")
+plot(ecoli.h.clust.av, labels = FALSE)
+```
+```{r}
+ecoli.h.clust.ce<- hclust(dist(ecoli), method = "centroid")
+plot(ecoli.h.clust.ce, labels = FALSE)
+```
+
+Comparatively all look different on same data
+
+
+
+```{r}
+plot(energy.hclust(dist(ecoli)),labels = FALSE)
+```
+
+#.	For the hierarchical clustering use both agglomerative and divisive clustering with a linkage method of your choice and generate dendograms. How do they compare on the same data?
+
+Agglomerative clustering
+```{r}
+distance<- dist(ecoli,method = "euclidean") 
+ecoli_hclust<-hclust(distance, method="single")
+plot(ecoli_hclust,labels=FALSE)
+```
+
+Divisive clustering:
+```{r}
+dc<-diana(ecoli, diss=inherits(ecoli, "dist"), metric="euclidean")
+plot(dc)
+
+```
+
+
+comparatively both look different on the same data
+
+#.	For the hierarchical clustering use centroid clustering and squared Euclidean distance and generate dendograms. How do they compare on the same data?
+
+A.### centroid clustering and squared Euclidean distance
+```{r}
+h_cc<- hclust(dist(ecoli)^2, "cen")
+plot(h_cc,labels=FALSE)
+
+```
+
+Centroid clustering and squared Euclidean distance results are not so similar to minimum energy clustering
+
